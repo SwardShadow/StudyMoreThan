@@ -1,0 +1,325 @@
+<!--
+ * @Auther: 赵文元
+ * @Date: 2019-10-16 16:04:23
+ * @LastEditors: 赵文元
+ * @LastEditTime: 2019-10-16 16:04:23
+ * @Description: 
+ -->
+<div style="font-family: 'Lucida Grande', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Lucida Sans Unicode', Helvetica, Arial, sans-serif; font-size: 0.9em; overflow-x: hidden; overflow-y: auto; margin: 0px !important; padding: 5px 20px 26px !important; background-color: rgb(255, 255, 255);font-family: 'Hiragino Sans GB', 'Microsoft YaHei', STHeiti, SimSun, 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', 'Segoe UI', AppleSDGothicNeo-Medium, 'Malgun Gothic', Verdana, Tahoma, sans-serif; padding: 20px;padding: 20px; font-family: 'Helvetica Neue', Helvetica, 'Hiragino Sans GB', 'Microsoft YaHei', STHeiti, SimSun, 'Segoe UI', AppleSDGothicNeo-Medium, 'Malgun Gothic', Arial, freesans, sans-serif; font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; background: rgb(255, 255, 255);"><h1 id="浏览器缓存" style="clear: both;font-size: 2.2em; font-weight: bold; margin: 1.5em 0px 1em;margin-top: 0px;"><a name="浏览器缓存" href="#浏览器缓存" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>浏览器缓存</h1><p style="undefined; margin: 0px !important;margin-top: 0px;margin: 1em 0px; word-wrap: break-word;"></p><ul>
+    <li style="display: list-item; line-height: 1.4em;"><ul>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#分类" title="分类" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">分类</a>
+    </span>
+    <!--span class="number">
+    0
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#缓存的目的是什么" title="缓存的目的是什么" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">缓存的目的是什么</a>
+    </span>
+    <!--span class="number">
+    1
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#缓存的处理步骤" title="缓存的处理步骤" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">缓存的处理步骤</a>
+    </span>
+    <!--span class="number">
+    2
+    </span-->
+    <ul>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#1.-第一步:-接收---缓存从网络中读取抵达的请求报文" title="1. 第一步: 接收—-缓存从网络中读取抵达的请求报文" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">1. 第一步: 接收—-缓存从网络中读取抵达的请求报文</a>
+    </span>
+    <!--span class="number">
+    3
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#2.-第二步：解析---缓存对报文进行解析，提取出url和各种首部" title="2. 第二步：解析—-缓存对报文进行解析，提取出URL和各种首部" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">2. 第二步：解析—-缓存对报文进行解析，提取出URL和各种首部</a>
+    </span>
+    <!--span class="number">
+    4
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#3.-第三步:-查询---缓存查看时候付有本地副本可用，如果没有，就获取一份副本(并将其保存到本地)" title="3. 第三步: 查询—-缓存查看时候付有本地副本可用，如果没有，就获取一份副本(并将其保存到本地)" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">3. 第三步: 查询—-缓存查看时候付有本地副本可用，如果没有，就获取一份副本(并将其保存到本地)</a>
+    </span>
+    <!--span class="number">
+    5
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#4.-第四步:-新鲜度监测---缓存查看已缓存副本是否足够新鲜，如果不是，就询问服务器是否有任何更新" title="4. 第四步: 新鲜度监测—-缓存查看已缓存副本是否足够新鲜，如果不是，就询问服务器是否有任何更新" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">4. 第四步: 新鲜度监测—-缓存查看已缓存副本是否足够新鲜，如果不是，就询问服务器是否有任何更新</a>
+    </span>
+    <!--span class="number">
+    6
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#5.-第五步:-创建相应---缓存会用心的首部和已缓存的主题来构建一条相应报文" title="5. 第五步: 创建相应—-缓存会用心的首部和已缓存的主题来构建一条相应报文" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">5. 第五步: 创建相应—-缓存会用心的首部和已缓存的主题来构建一条相应报文</a>
+    </span>
+    <!--span class="number">
+    7
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#6.-第六步:-发送---缓存通过网络将响应发回给客户端" title="6. 第六步: 发送—-缓存通过网络将响应发回给客户端" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">6. 第六步: 发送—-缓存通过网络将响应发回给客户端</a>
+    </span>
+    <!--span class="number">
+    8
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#7.-第七步:-日志---缓存可选地创建一个日志文件条目来描述这个事务" title="7. 第七步: 日志—-缓存可选地创建一个日志文件条目来描述这个事务" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">7. 第七步: 日志—-缓存可选地创建一个日志文件条目来描述这个事务</a>
+    </span>
+    <!--span class="number">
+    9
+    </span-->
+    </li>
+    </ul>
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#强缓存" title="强缓存" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">强缓存</a>
+    </span>
+    <!--span class="number">
+    10
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#服务器再验证" title="服务器再验证" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">服务器再验证</a>
+    </span>
+    <!--span class="number">
+    11
+    </span-->
+    <ul>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#1.-cache-control:no-store" title="1. Cache-Control:no-store" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">1. Cache-Control:no-store</a>
+    </span>
+    <!--span class="number">
+    12
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#2.-cache-control:no-cache" title="2. Cache-Control:no-cache" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">2. Cache-Control:no-cache</a>
+    </span>
+    <!--span class="number">
+    13
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#3.-cache-control:must-revalidate" title="3. Cache-Control:must-revalidate" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">3. Cache-Control:must-revalidate</a>
+    </span>
+    <!--span class="number">
+    14
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#4.-cache-control:max-age" title="4. Cache-control:max-age" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">4. Cache-control:max-age</a>
+    </span>
+    <!--span class="number">
+    15
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#5.-cache-control:s-maxage" title="5. Cache-Control:s-maxage" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">5. Cache-Control:s-maxage</a>
+    </span>
+    <!--span class="number">
+    16
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#6.-cache-control:private" title="6. Cache-Control:private" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">6. Cache-Control:private</a>
+    </span>
+    <!--span class="number">
+    17
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#7.-cache-control:public" title="7. Cache-Control:public" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">7. Cache-Control:public</a>
+    </span>
+    <!--span class="number">
+    18
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#8.-cache-control:max-stale" title="8. Cache-Control:max-stale" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">8. Cache-Control:max-stale</a>
+    </span>
+    <!--span class="number">
+    19
+    </span-->
+    </li>
+    </ul>
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#通过http-equiv控制html缓存" title="通过HTTP-EQUIV控制HTML缓存" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">通过HTTP-EQUIV控制HTML缓存</a>
+    </span>
+    <!--span class="number">
+    20
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#条件方法再验证(协商缓存)" title="条件方法再验证(协商缓存)" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">条件方法再验证(协商缓存)</a>
+    </span>
+    <!--span class="number">
+    21
+    </span-->
+    <ul>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#if-modified-since:date再验证" title="If-Modified-Since:Date再验证" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">If-Modified-Since:Date再验证</a>
+    </span>
+    <!--span class="number">
+    22
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#if-none-match:etag" title="If-None-Match:etag" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">If-None-Match:etag</a>
+    </span>
+    <!--span class="number">
+    23
+    </span-->
+    </li>
+    </ul>
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#说点别地儿没有的" title="说点别地儿没有的" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">说点别地儿没有的</a>
+    </span>
+    <!--span class="number">
+    24
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#再聊点别的" title="再聊点别的" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">再聊点别的</a>
+    </span>
+    <!--span class="number">
+    25
+    </span-->
+    <ul>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#from:-用户的e-mail地址" title="FROM: 用户的E-mail地址" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">FROM: 用户的E-mail地址</a>
+    </span>
+    <!--span class="number">
+    26
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#user-agent:-用户的浏览器软件" title="User-Agent: 用户的浏览器软件" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">User-Agent: 用户的浏览器软件</a>
+    </span>
+    <!--span class="number">
+    27
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#referer:-用户从这个页面上依照连接跳转过来的" title="Referer: 用户从这个页面上依照连接跳转过来的" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">Referer: 用户从这个页面上依照连接跳转过来的</a>
+    </span>
+    <!--span class="number">
+    28
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#authorization:-用户名和密码" title="Authorization: 用户名和密码" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">Authorization: 用户名和密码</a>
+    </span>
+    <!--span class="number">
+    29
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#client-ip:-客户端的ip地址" title="Client-IP: 客户端的IP地址" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">Client-IP: 客户端的IP地址</a>
+    </span>
+    <!--span class="number">
+    30
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#x-forwarded-for:-客户端的ip地址" title="X-Forwarded-For: 客户端的IP地址" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">X-Forwarded-For: 客户端的IP地址</a>
+    </span>
+    <!--span class="number">
+    31
+    </span-->
+    </li>
+    <li style="display: list-item; line-height: 1.4em;"><span class="title">
+    <a href="#胖url" title="胖URL" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);">胖URL</a>
+    </span>
+    <!--span class="number">
+    32
+    </span-->
+    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    
+    </ul>
+    <p style="margin: 1em 0px; word-wrap: break-word;"></p><h2 id="分类" style="clear: both;font-size: 1.8em; font-weight: bold; margin: 1.275em 0px 0.85em;border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(230, 230, 230); line-height: 1.6;"><a name="分类" href="#分类" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>分类</h2><ol style="list-style-type: decimal;">
+    <li style="display: list-item; line-height: 1.4em;"><strong>数据库缓存</strong></li><li style="display: list-item; line-height: 1.4em;"><strong>服务器端缓存(代理服务器缓存、CDN缓存)</strong></li><li style="display: list-item; line-height: 1.4em;"><strong>浏览器缓存</strong></li></ol><p style="margin: 1em 0px; word-wrap: break-word;">而作为前端来说，最常接触的是http缓存与浏览器缓存。</p><h2 id="缓存的目的是什么" style="clear: both;font-size: 1.8em; font-weight: bold; margin: 1.275em 0px 0.85em;border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(230, 230, 230); line-height: 1.6;"><a name="缓存的目的是什么" href="#缓存的目的是什么" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>缓存的目的是什么</h2><ol style="list-style-type: decimal;">
+    <li style="display: list-item; line-height: 1.4em;">缓存减少了冗余的数据传输，节省了你的网络费用。</li><li style="display: list-item; line-height: 1.4em;">缓存缓解了网络瓶颈问题。不需要更多的带宽你就能够更快地加载页面。</li><li style="display: list-item; line-height: 1.4em;">缓存降低了对原始服务器的请求。服务器可以更快地响应、避免过载的出现。</li><li style="display: list-item; line-height: 1.4em;">缓存降低了距离时延，因为从较远的地方加载页面会更慢一些。</li></ol><p style="margin: 1em 0px; word-wrap: break-word;">举个不恰当的例子：我去手机上可以买火车票，为什么还要开车去火车站买呢？闲的DT，还不如来把王者,我程咬金贼6。<br style="clear: both;"><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1571115844834&amp;di=30b3450300ca437f28f87da6b7c6a26e&amp;imgtype=0&amp;src=http%3A%2F%2Fwx4.sinaimg.cn%2Fmw690%2F006HJgYYgy1fg9n2dtrwrg308c08cwf2.gif" alt="农药" style="max-width: 100%;"></p><p style="margin: 1em 0px; word-wrap: break-word;">当然缓存无法保存世界上每份文档的副本，可以用已有的副本为某些到达缓存的请求提供服务。这就被称为<strong>缓存命中(cache hit)</strong>。<br style="clear: both;">其他一些到达缓存的请求可能会由于没有副本可用，而被转发给原始服务器。这就被称为<strong>缓存未命中(cache miss)</strong>。具体如下图所示:<br style="clear: both;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daeab220229c5d?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="缓存机制" style="max-width: 100%;"></p><h2 id="缓存的处理步骤" style="clear: both;font-size: 1.8em; font-weight: bold; margin: 1.275em 0px 0.85em;border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(230, 230, 230); line-height: 1.6;"><a name="缓存的处理步骤" href="#缓存的处理步骤" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>缓存的处理步骤</h2><h3 id="1.-第一步:-接收---缓存从网络中读取抵达的请求报文" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="1.-第一步:-接收---缓存从网络中读取抵达的请求报文" href="#1.-第一步:-接收---缓存从网络中读取抵达的请求报文" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>1. 第一步: 接收—-缓存从网络中读取抵达的请求报文</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">缓存监测到一条网络连接上的活动，读取输入的数据。高性能的缓存会同事从多条输入连接上读取数据，在整条报文抵达之前开始对事务进行处理。</p><h3 id="2.-第二步：解析---缓存对报文进行解析，提取出url和各种首部" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="2.-第二步：解析---缓存对报文进行解析，提取出url和各种首部" href="#2.-第二步：解析---缓存对报文进行解析，提取出url和各种首部" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>2. 第二步：解析—-缓存对报文进行解析，提取出URL和各种首部</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">接下来，缓存将请求报文解析为片段，将首部的各个部分放入易于操作的数据结构中。真央，缓存软件就更容易处理首部字段并修改他们了。</p><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">解析程序还要负责首部各部分的白哦准话，将大小写或可替换数据格式之类不太重要的区别都看作等效的。而且，某些请求安博文中包含有完整的绝对URL，而其他一些请求中包含的则是相对URL和Host首部，所以解析程序通常都要将这些细节隐藏起来。</p>
+    </blockquote><h3 id="3.-第三步:-查询---缓存查看时候付有本地副本可用，如果没有，就获取一份副本(并将其保存到本地)" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="3.-第三步:-查询---缓存查看时候付有本地副本可用，如果没有，就获取一份副本(并将其保存到本地)" href="#3.-第三步:-查询---缓存查看时候付有本地副本可用，如果没有，就获取一份副本(并将其保存到本地)" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>3. 第三步: 查询—-缓存查看时候付有本地副本可用，如果没有，就获取一份副本(并将其保存到本地)</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">在第三步中，缓存获取了URL，查找本地副本。本地副本可能存储在内存、本地磁盘，甚至附近的另一台计算机中。专业级的缓存会使用快速算法来确定本地缓存中是否有某个对象。如果本地没有这个文档，它可以根据情形和配置，到原始服务器或父代理中去取，或者返回一条错误信息。<br style="clear: both;">已缓存对象中包含了服务器相应主体和原始服务器相应首部，这样就会在华黁命中时返回正确的服务器首部。已缓存对象中还包含了一些元数据(metadata),用来记录对象在缓存中停留了多长时间，以及它被用过多少次等。</p><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">复杂的缓存还会保留UI你发服务器响应的原始客户端响应首部的一份副本，以用于HTTP/1.1内容协商。</p>
+    </blockquote><h3 id="4.-第四步:-新鲜度监测---缓存查看已缓存副本是否足够新鲜，如果不是，就询问服务器是否有任何更新" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="4.-第四步:-新鲜度监测---缓存查看已缓存副本是否足够新鲜，如果不是，就询问服务器是否有任何更新" href="#4.-第四步:-新鲜度监测---缓存查看已缓存副本是否足够新鲜，如果不是，就询问服务器是否有任何更新" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>4. 第四步: 新鲜度监测—-缓存查看已缓存副本是否足够新鲜，如果不是，就询问服务器是否有任何更新</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">HTTP通过缓存将服务器文档的副本保留一段时间。在这段时间里，都认为文档是新鲜的，缓存可以在不联系服务器的情况下，直接提供该文档。但是一旦已缓存到副本停留的时间太长，超过了文档的新鲜度限值(freshness limit),就认为对象”过时”了，在提供该文档之前，缓存要再次与服务器进行确认，已查看文档是否发生了变化。客户端发送给缓存的所有请求首部都可以强制缓存进行在验证，或者完全避免验证，这使得事情变得更加复杂了。<br style="clear: both;">HTTP有一组非常复杂的新鲜度监测规则，缓存产品支持的大量配置选项，以及与非HTTP新鲜度白哦准进行互通的需要则使温蒂变得更加严重了。</p><h3 id="5.-第五步:-创建相应---缓存会用心的首部和已缓存的主题来构建一条相应报文" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="5.-第五步:-创建相应---缓存会用心的首部和已缓存的主题来构建一条相应报文" href="#5.-第五步:-创建相应---缓存会用心的首部和已缓存的主题来构建一条相应报文" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>5. 第五步: 创建相应—-缓存会用心的首部和已缓存的主题来构建一条相应报文</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">我们虚妄缓存的响应看起来就像来自原始服务器一样，缓存将已缓存的服务器响应首部作为响应首部的七点，然后缓存对这些基础首部进行了修改和扩充。<br style="clear: both;">缓存负责对这些首部进行改造，以便与客户端的要求相匹配。比如，服务器返回的可能是一条HTTP/1.0响应(甚至可能是HTTP/0.9响应)，而客户端期待的是一条HTTP/1.1响应，在这种情况下，缓存必须对首部进行相应的转换。缓存还会向其中插入新鲜度信息(Cache-Control、Age以及Expires首部)，而且通常包含一个Via首部来说明请求是由一个代理缓存提供的。</p><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">注意，缓存不应该调整Date首部。Date首部表示的是原始服务器最初产生这个对象的日期。</p>
+    </blockquote><h3 id="6.-第六步:-发送---缓存通过网络将响应发回给客户端" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="6.-第六步:-发送---缓存通过网络将响应发回给客户端" href="#6.-第六步:-发送---缓存通过网络将响应发回给客户端" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>6. 第六步: 发送—-缓存通过网络将响应发回给客户端</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">一旦响应首部准备好了，缓存就将响应回送给客户端。和所有代理服务器一样，代理缓存要管理与客户端之间的连接。高性能的缓存会尽力高效地发送数据，通常可以避免在本地缓存和网络I/O缓冲区之间进行文档内容的赋值。</p><h3 id="7.-第七步:-日志---缓存可选地创建一个日志文件条目来描述这个事务" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="7.-第七步:-日志---缓存可选地创建一个日志文件条目来描述这个事务" href="#7.-第七步:-日志---缓存可选地创建一个日志文件条目来描述这个事务" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>7. 第七步: 日志—-缓存可选地创建一个日志文件条目来描述这个事务</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">大多数缓存都会保存日志文件以及与缓存的使用有关的一些统计数据。每个缓存事务结束之后，缓存都会更新缓存命中和未命中数据的统计数据(以及其他相关的度量值)，并将条目插入一个用来显示请求类型、URL和所发生事件的日志文件。<br style="clear: both;">下面是一张总结图:<br style="clear: both;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daf31b4d73655e?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="缓存处理步骤" style="max-width: 100%;"></p><h2 id="强缓存" style="clear: both;font-size: 1.8em; font-weight: bold; margin: 1.275em 0px 0.85em;border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(230, 230, 230); line-height: 1.6;"><a name="强缓存" href="#强缓存" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>强缓存</h2><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">通过特殊的<code style="border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; word-wrap: break-word; border: 1px solid rgb(204, 204, 204); padding: 0px 5px; margin: 0px 2px;font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 85%; padding: 0.2em 0.5em; border: 0px; background-color: rgba(0, 0, 0, 0.0666667);">HTTP Cache-Control</code>首部和Expires首部，HTTP让原始服务器向每个文档附加了一个<strong>“过期日期”</strong>。就像印在牛奶盒子上的过期日期一样，这些首部说明了多长时间可以将这些内容视为新鲜的。<br style="clear: both;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daf3935c3dcf8f?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="新鲜内容" style="max-width: 100%;"></p><p style="margin: 1em 0px; word-wrap: break-word;">服务器用HTTP/1.0+的Expires首部或HTTP/1.1的Cache-Control:max-age响应首部来指定过期日期，同事还会带有响应主题。Expires首部和Cache-Control:max-age首部所做的事情本质上是一样的，但由于Cache-Control首部使用的是相对时间而不是绝对日期，所以我们更倾向于使用比较新的Cache-Control首部。绝对日期依赖于计算机时钟的正确设置。</p><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">即Cache-Control优先级更高。</p>
+    </blockquote><h2 id="服务器再验证" style="clear: both;font-size: 1.8em; font-weight: bold; margin: 1.275em 0px 0.85em;border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(230, 230, 230); line-height: 1.6;"><a name="服务器再验证" href="#服务器再验证" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>服务器再验证</h2><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">仅仅是已缓存文档过期了并不意味着它和原始服务器上目前处于活跃状态的文档有实际的区别；这只是意味着带了要进行核对的时间了。这种情况被称为<strong>“服务器再验证”</strong>，说明缓存需要询问原始服务器文档是否发生了变化。</p><ul>
+    <li style="display: list-item; line-height: 1.4em;">如果再验证显示内容发生了变化，缓存会获取一份新的文档副本，并将其存储在就文档的位置上，然后将文档发送给客户端。</li><li style="display: list-item; line-height: 1.4em;">如果再验证显示内容没有发生变化，缓存只需要重新获取新的首部，包括一个新的过期日期，并对缓存中的首部进行更新就行了。</li></ul><p style="margin: 1em 0px; word-wrap: break-word;">我们来看一下<strong>Cache-Control</strong>的头部:</p><h3 id="1.-cache-control:no-store" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="1.-cache-control:no-store" href="#1.-cache-control:no-store" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>1. Cache-Control:no-store</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">禁止一切缓存(这个才是响应不被缓存的意思)。缓存通常会像非缓存代理服务器一样，向客户端转发一条no-store响应，然后删除对象。</p><h3 id="2.-cache-control:no-cache" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="2.-cache-control:no-cache" href="#2.-cache-control:no-cache" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>2. Cache-Control:no-cache</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">强制客户端直接向服务器发送请求，也就是说每次请求都必须向服务器发送。服务器接收到请求，然后判断资源是否变更，是则返回新内容，否则返回304，未变更。</p><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">304代表的意思是:服务端已经执行了GET，但是文件未变化。</p>
+    </blockquote><p style="margin: 1em 0px; word-wrap: break-word;">这个很容易让人产生误解，使人误认为是响应不被缓存。实际上Cache-Control: no-cache是会被缓存的，只不过每次在向客户端(浏览器)提供响应数据时，缓存都要向服务器评估缓存响应的有效性。</p><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">HTTP/1.1中提供Pragmatic:no-cache首部是为了兼容于HTTP/1.0+。除了与知礼节Pragma:no-cache的HTTP/1.0应用程序进行交互时，HTTP/1.1应用程序都应该使用Cache-Control:no-cache。</p>
+    </blockquote><p style="margin: 1em 0px; word-wrap: break-word;">从技术上来讲，Pragma:no-cache首部只能用于HTTP请求，但在实际中它作为扩展首部已被广泛地应用于HTTP请求和相应之中。</p><h3 id="3.-cache-control:must-revalidate" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="3.-cache-control:must-revalidate" href="#3.-cache-control:must-revalidate" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>3. Cache-Control:must-revalidate</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">在事先没有跟原始服务器进行再验证的情况下，不能提供这个对象的陈旧副本。缓存仍然可以随意提供新鲜的副本。如果在缓存进行must-revalidate新鲜度检查时，原始服务器不可用，缓存就必须返回一条504 Gateway Timeout错误。</p><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">504: 网关超时错误。</p>
+    </blockquote><h3 id="4.-cache-control:max-age" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="4.-cache-control:max-age" href="#4.-cache-control:max-age" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>4. Cache-control:max-age</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">首部表示的是从服务器将文档传来之时起，可以认为此文档处于新鲜状态的秒数。</p><h3 id="5.-cache-control:s-maxage" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="5.-cache-control:s-maxage" href="#5.-cache-control:s-maxage" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>5. Cache-Control:s-maxage</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">和max-age是一样的，不过他只针对代理服务器缓存而言。</p><h3 id="6.-cache-control:private" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="6.-cache-control:private" href="#6.-cache-control:private" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>6. Cache-Control:private</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">只能针对个人用户，而不嗯呢该被代理服务器缓存。</p><h3 id="7.-cache-control:public" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="7.-cache-control:public" href="#7.-cache-control:public" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>7. Cache-Control:public</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">可以被任何对象缓存，包括发送请求的客户端，代理服务器。</p><h3 id="8.-cache-control:max-stale" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="8.-cache-control:max-stale" href="#8.-cache-control:max-stale" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>8. Cache-Control:max-stale</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">缓存可以随意提供过期的文件。如果制定了参数<code style="border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; word-wrap: break-word; border: 1px solid rgb(204, 204, 204); padding: 0px 5px; margin: 0px 2px;font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 85%; padding: 0.2em 0.5em; border: 0px; background-color: rgba(0, 0, 0, 0.0666667);">&lt;s&gt;</code>，在这段时间内，文档就不能过期。这条指令放松了缓存的规则。</p><h2 id="通过http-equiv控制html缓存" style="clear: both;font-size: 1.8em; font-weight: bold; margin: 1.275em 0px 0.85em;border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(230, 230, 230); line-height: 1.6;"><a name="通过http-equiv控制html缓存" href="#通过http-equiv控制html缓存" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>通过HTTP-EQUIV控制HTML缓存</h2><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">HTML 2.0定义了<code style="border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; word-wrap: break-word; border: 1px solid rgb(204, 204, 204); padding: 0px 5px; margin: 0px 2px;font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 85%; padding: 0.2em 0.5em; border: 0px; background-color: rgba(0, 0, 0, 0.0666667);">&lt;META HTTP-EQUIV&gt;</code>标签。这个可选的标签位于HTML文档的顶部，定义了应该与文档有所关联的HTTP首部。</p><pre style="border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; word-wrap: break-word; border: 1px solid rgb(204, 204, 204); overflow: auto; padding: 0.5em;display: block; overflow-x: auto; padding: 0.5em; color: rgb(101, 123, 131); background: rgb(253, 246, 227);"><code class="js" data-origin="<pre><code class=&quot;js&quot;>&amp;lt;HTML&amp;gt;
+        &amp;lt;HEAD&amp;gt;
+        &amp;lt;TITLE&amp;gt;My Document&amp;lt;/TITLE&amp;gt;
+    
+        &amp;lt;META HTTP-EQUIV=&quot;Cache-control&quot; CONTENT=&quot;no-cache&quot;&amp;gt;
+        &amp;lt;/HEAD&amp;gt;
+        ...
+    &amp;lt;/HTML&amp;gt;
+    </code></pre>" style="border: 0px; display: block;font-family: Consolas, Inconsolata, Courier, monospace; font-weight: bold; white-space: pre; margin: 0px;border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; word-wrap: break-word; border: 1px solid rgb(204, 204, 204); padding: 0px 5px; margin: 0px 2px;font-size: 0.9em; font-family: Consolas, Inconsolata, Courier, monospace;">&lt;HTML&gt;
+        <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title" style="color: rgb(38, 139, 210);">HEAD</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title" style="color: rgb(38, 139, 210);">TITLE</span>&gt;</span>My Document<span class="hljs-tag">&lt;/<span class="hljs-title" style="color: rgb(38, 139, 210);">TITLE</span>&gt;</span>
+    
+        <span class="hljs-tag">&lt;<span class="hljs-title" style="color: rgb(38, 139, 210);">META</span> <span class="hljs-attribute" style="color: rgb(181, 137, 0);">HTTP-EQUIV</span>=<span class="hljs-value" style="color: rgb(42, 161, 152);">"Cache-control"</span> <span class="hljs-attribute" style="color: rgb(181, 137, 0);">CONTENT</span>=<span class="hljs-value" style="color: rgb(42, 161, 152);">"no-cache"</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title" style="color: rgb(38, 139, 210);">HEAD</span>&gt;</span>
+        ...
+    <span class="hljs-tag">&lt;/<span class="hljs-title" style="color: rgb(38, 139, 210);">HTML</span>&gt;</span>
+    </span></code></pre><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">HTTP服务器可以用此信息来处理文档。特别是，它可以在为请求此文档的报文所发送的响应中包括一个首部字段:首部名称是从HTTP-EQUIV属性值中获取的，首部值是从CONTENT属性值中获取的。</p>
+    </blockquote><p style="margin: 1em 0px; word-wrap: break-word;">不幸的是，支持这个可选特性会增加服务器的额外负载，这些值也只是静态的，而且他只支持HTML，不支持很多其他的文件类型，所以很少有Web服务器和代理支持此特性。<br style="clear: both;"><strong>总之，标签并不是控制文档缓存特性的好方法。通过配置正 确的服务器发出 HTTP 首部，是传送文档缓存控制请求的唯一可靠的方法。</strong><br style="clear: both;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daf56332b34a6d?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="meta http-equiv" style="max-width: 100%;"></p><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">Tips: Web浏览器都有Refresh(刷新)或Reload(重载)按钮，可以强制对浏览器或代理缓存中可能过期的内容进行刷新。Refresh按钮会发布一个附加了Cache-Control请求首部的GET请求，这个请求会强制进行再验证，或者无条件地从服务器获取文档。Refresh的确切行为取决于特定的浏览器、文档以及拦截缓存的配置。</p>
+    </blockquote><p style="margin: 1em 0px; word-wrap: break-word;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daf5a37b8e2986?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="Web缓存" style="max-width: 100%;"></p><h2 id="条件方法再验证(协商缓存)" style="clear: both;font-size: 1.8em; font-weight: bold; margin: 1.275em 0px 0.85em;border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(230, 230, 230); line-height: 1.6;"><a name="条件方法再验证(协商缓存)" href="#条件方法再验证(协商缓存)" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>条件方法再验证(协商缓存)</h2><h3 id="if-modified-since:date再验证" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="if-modified-since:date再验证" href="#if-modified-since:date再验证" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>If-Modified-Since:Date再验证</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">如果从指定日期之后文档被修改过了，就执行请求的方法。可以与Last-Modified服务器响应首部配合使用，只有在内容被修改后与已缓存版本有所不同的时候才会去获取内容。</p><ul>
+    <li style="display: list-item; line-height: 1.4em;">如果自指定日期后，文档被修改了，If-Modified-Since条件就为真，通常GET就会成功执行。携带新首部的新文档会被返回给缓存，新首部除了其他信息之外，还包含了一个新的过期日期。</li><li style="display: list-item; line-height: 1.4em;">如果自指定日期之后，文档没有被修改过，条件就为假，会向客户端返回一个小的<strong>304 Not Modified</strong>响应报文，为了提高高效性，不会返回文档的主题。这些首部是放在响应中返回的，但只会返回哪些需要在源端更新的首部。比如，Context-Type首部通常不会被修改，所以通常不需要发送。一般会发送一个新的过期日期。</li><li style="display: list-item; line-height: 1.4em;">If-Modified-Since首部可以与Last-Modified服务器响应首部配合工作。原始服务器会将最后的修改日期附加到所提交的文档上去。当缓存要对已缓存文档进行再验证时，就会包含一个If-Modified-Since首部，其中携带有最后修改已缓存副本的日期。</li></ul><p style="margin: 1em 0px; word-wrap: break-word;"><strong>如果未发生变化，If-Modified-Since再验证会返回304响应，如果发生了变化，就返回带有新主题的200响应。</strong></p><p style="margin: 1em 0px; word-wrap: break-word;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daf6979cdb6fa4?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="再验证" style="max-width: 100%;"></p><h3 id="if-none-match:etag" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="if-none-match:etag" href="#if-none-match:etag" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>If-None-Match:etag</h3><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">ETag实体标签：一般为资源实体的哈希值，即ETag就是服务器生成的一个标记，用来标识返回值是否有变化。且Etag的优先级高于Last-Modified。</p>
+    </blockquote><p style="margin: 1em 0px; word-wrap: break-word;">服务器可以为文档提供特殊的标签，而不是将其余最近修改日期相匹配，这些标签就像序列号一样。如果已缓存标签与服务器文档中的标签有所不同，If-None-Match首部就会执行所请求的方法。<br style="clear: both;">好的，那么问题来了，<strong>为什么有了If-Modified-Since还要用If-None-Match?</strong></p><ul>
+    <li style="display: list-item; line-height: 1.4em;">有些文档可能会被周期性地重写(比如，从一个后台进程中写入)，但实际包含的数据常常是一样的。尽管内容没有变化，但是修改日期会发生变化。</li><li style="display: list-item; line-height: 1.4em;">有些文档可能被修改了，但所做修改并不重要，不需要让世界范围内的缓存都重装数据(比如对拼写或注释的修改)。</li><li style="display: list-item; line-height: 1.4em;">有些服务器无法准确的判断其页面的最后修改日期。</li><li style="display: list-item; line-height: 1.4em;">有些服务器提供的文档会在亚秒间隙发火说呢过变化(比如，实时监视器)，对这些服务器来说，以一秒为粒度的修改日期可能就不够用了。</li></ul><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;"><strong>当你第一次发起HTTP请求是，服务器会返回一个Etag，并在你第二次发起了同一个请求时，客户端会同事发送一个If-None-Match,而它的值就是Etag的值(此处由发起请求的客户端开设置)</strong>。缓存中有一个实体标签为Etag:2.6的文档。它会与原始服务器进行再验证，如果标签Etag:v2.6不再匹配，就会请求一个新对象。假设标签仍然与之匹配，因此会返回一条<strong>304 NOt Modified</strong>的响应。如果服务器上的实体标签已经发生了变化(可能变化为Etag:v3.0),服务器会在一个2000K响应中返回新的内容以及相应的新Etag。</p>
+    </blockquote><p style="margin: 1em 0px; word-wrap: break-word;">举个例子:<br style="clear: both;">当你第一次发起HTTP请求时，服务器会返回一个Etag<br style="clear: both;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daf82990cfb4b0?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="Etag" style="max-width: 100%;"></p><p style="margin: 1em 0px; word-wrap: break-word;">并在你第二次发起同一个请求时，客户端会同事发送一个If-None-Match,而它的值就是Etag的值(此处由发起请求的客户端来设置)。<br style="clear: both;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daf8348ad91ff1?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="dh11" style="max-width: 100%;"></p><h2 id="说点别地儿没有的" style="clear: both;font-size: 1.8em; font-weight: bold; margin: 1.275em 0px 0.85em;border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(230, 230, 230); line-height: 1.6;"><a name="说点别地儿没有的" href="#说点别地儿没有的" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>说点别地儿没有的</h2><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">有时候，客户端和服务器可能需要采用不那么精确的实体标记验证方法。例如，某服务器可能想对一个很大、被广泛缓存的文档进行一些美化修饰，但不想在缓存服务器再验证时产生很大的传输流量。在这种情况下，该服务器可以在标记前面加上“W/”前缀来广播一个“弱”实体标记。对于弱实体标记来说，只有当关联的实体在语义上发生了重大改变时，标记才会变化。而强实体标记则不管关联的实体发生了什么性质的变化，标记都一定会改变。<br style="clear: both;">下面的例子展示了客户端如何用弱实体标记向服务器请求再验证。服务器仅当文档的内容从版本4.0算起发生了显著变化时，才返回主体。<br style="clear: both;"><mark style="color: rgb(0, 0, 0); background-color: rgb(252, 248, 227);">GET /announce.html HTTP/1.1</mark><br style="clear: both;"><mark style="color: rgb(0, 0, 0); background-color: rgb(252, 248, 227);">If-None-Match: W/“v4.0”</mark></p><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">概况一下:当客户端多次访问同一个资源时，首先需要判断它当前的副本是不是仍然新鲜。如果不再新鲜，他们就必须从服务器获取最新的版本。为了避免在资源没有改变的情况下收到一份相同的副本，客户端可以向服务器发送有条件的请求，说明能唯一表示客户端当前副本的验证码。只在资源和客户端的副本不同的情况下服务器才会发送其副本。</p>
+    </blockquote><p style="margin: 1em 0px; word-wrap: break-word;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daf78c04dcbda2?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="验证是否新鲜" style="max-width: 100%;"></p><h2 id="再聊点别的" style="clear: both;font-size: 1.8em; font-weight: bold; margin: 1.275em 0px 0.85em;border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(230, 230, 230); line-height: 1.6;"><a name="再聊点别的" href="#再聊点别的" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>再聊点别的</h2><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">关于登录的状态，除了cookie和token，还有其他方式吗？<br style="clear: both;">因为csrf可以拿到cookie的值，xss可以拿到token的值，玩意某个网站存在这两个渗透攻击，那不就完蛋了。<br style="clear: both;"><img src="https://user-gold-cdn.xitu.io/2019/10/9/16daf893d71c981d?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="我崩了" style="max-width: 100%;"></p><p style="margin: 1em 0px; word-wrap: break-word;">所以，我想了一些思路来防止上面的渗透攻击:</p><ul>
+    <li style="display: list-item; line-height: 1.4em;">承载用户身份信息的HTTP首部。</li><li style="display: list-item; line-height: 1.4em;">客户端IP地址跟踪，通过用户的IP地址对其进行识别。</li><li style="display: list-item; line-height: 1.4em;">用户登录，用认证方式来识别用户。</li><li style="display: list-item; line-height: 1.4em;">胖URL，一种在URL中嵌入识别信息的技术。</li></ul><h3 id="from:-用户的e-mail地址" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="from:-用户的e-mail地址" href="#from:-用户的e-mail地址" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>FROM: 用户的E-mail地址</h3><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">From首部包含了用户的E-mail地址。每个用户都有不同的E-mail地址，所以在理想情况下，可以将这个地址作为可行的源端来识别用户。但是又有担心哪些不讲道德的服务器会搜集这些E-mail地址，用于垃圾邮件的散发，所以很少有浏览器会发送From首部。实际上，From首部是由自动化的机器人或蜘蛛发送的，这样在出现问题时，网管还有个地方可以发送愤怒的投诉邮件。</p>
+    </blockquote><h3 id="user-agent:-用户的浏览器软件" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="user-agent:-用户的浏览器软件" href="#user-agent:-用户的浏览器软件" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>User-Agent: 用户的浏览器软件</h3><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">User-Agent首部可以将用户所用的浏览器的相关信息告知服务器，包括程序的名称和版本，通常还包含操作系统的相关信息。要实现定制内容与特定的浏览器及其属性间的良好互操作时，这个首部是非常有用的，但是它并没有为识别特定的用户提供太多有意义的帮助。</p>
+    </blockquote><h3 id="referer:-用户从这个页面上依照连接跳转过来的" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="referer:-用户从这个页面上依照连接跳转过来的" href="#referer:-用户从这个页面上依照连接跳转过来的" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>Referer: 用户从这个页面上依照连接跳转过来的</h3><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">Referer首部提供了用户来源页面的URL。Referer首部自身并不能完全标识用户，但它确实说明了用户之前访问过哪个页面。通过它可以更好地理解用户的浏览行为，以及用户的兴趣所在。</p>
+    </blockquote><h3 id="authorization:-用户名和密码" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="authorization:-用户名和密码" href="#authorization:-用户名和密码" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>Authorization: 用户名和密码</h3><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">为了使Web站点的登录更加简便，HTTP中包含一种内建机制，可以用WWW-Authenticate首部和Authorization首部向Web站点传送用户的相关信息。一旦登录，浏览器就可以不断的在没调发往这个站点的请求中发送这个登录信息了，这样，就总是有登录信息可以用了。</p>
+    </blockquote><h3 id="client-ip:-客户端的ip地址" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="client-ip:-客户端的ip地址" href="#client-ip:-客户端的ip地址" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>Client-IP: 客户端的IP地址</h3><h3 id="x-forwarded-for:-客户端的ip地址" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="x-forwarded-for:-客户端的ip地址" href="#x-forwarded-for:-客户端的ip地址" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>X-Forwarded-For: 客户端的IP地址</h3><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">如果每个用户都有不同的IP地址，IP地址(如果会发生变化的话)也很少会发生变化，而且Web服务器可以判断出每条请求的客户端IP地址的话，这种方案是可行的。通常在HTTP首部并不提供客户端的IP地址，但Web服务器可以找到承载HTTP请求的TCP连接另一端的IP地址。</p>
+    </blockquote><p style="margin: 1em 0px; word-wrap: break-word;">但是，使用客户端IP地址来识别用户存在着很多缺点，限制了将其作为用户识别技术的效能。</p><ul>
+    <li style="display: list-item; line-height: 1.4em;">客户端IP地址描述的是所用的机器，而不是用户。如果多个用户共享同一台计算机，就无法对其进行区分了。</li><li style="display: list-item; line-height: 1.4em;">很多因特网服务提供商都会在用户登录时为其分配IP地址。用户每次登录时，都会得到一个不同的IP地址，因此Web服务器不能假设IP地址可以在各登录之间标识用户。</li><li style="display: list-item; line-height: 1.4em;">为了提高安全性，并对稀缺的地址资源进行管理，很多用户都是通过网络地址转换(Network Address Translation, NAT)防火墙来浏览网络内容的。这些NAT设备隐藏了防火墙后面那些实际客户端的IP地址，将实际的客户端IP地址换成一个共享的防火墙IP地址(和不同的端口号)。</li><li style="display: list-item; line-height: 1.4em;">HTTP代理和网管通常会打开一些新的、到原始服务器的TCP连接。Web服务器看到的僵尸代理服务器的IP地址，而不是客户端的。有些代理为了绕过这个问题会添加特殊的Client-IP或X-Forwarded-For扩展首部来保存原始的IP地址.但并不是所有的代理都支持这种行为。</li></ul><h3 id="胖url" style="clear: both;font-size: 1.6em; font-weight: bold; margin: 1.125em 0px 0.75em;"><a name="胖url" href="#胖url" style="text-decoration: none; vertical-align: baseline;color: rgb(50, 105, 160);"></a>胖URL</h3><p style="margin-top: 0px;margin: 1em 0px; word-wrap: break-word;">有些Web站点回味每个用户生成特定版本的URL来追踪用户的身份。通常，会对真正的URL进行扩展，在URL路径开始或结束的地方添加一些状态信息。用户浏览站点时，Web服务器会动态生成一些超链，继续维护URL中的状态信息。<br style="clear: both;">改动后包含了用户状态信息的URL被称为胖URL(fat URL)。下面是Amazon.com使用的一些胖URL实例。每个URL后面都附加了一个用户特有的标识码(在这个例子中就是002-1145265-8016838)。这个标识码有助于在用户浏览商店内容时对其进行跟踪。</p><pre style="border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; word-wrap: break-word; border: 1px solid rgb(204, 204, 204); overflow: auto; padding: 0.5em;display: block; overflow-x: auto; padding: 0.5em; color: rgb(101, 123, 131); background: rgb(253, 246, 227);"><code class="js" data-origin="<pre><code class=&quot;js&quot;>&amp;lt;a href=&quot;/exec/obidos/tg/browse/-/229220/ref=gr_gifts/002-1145265-8016838&quot;&amp;gt;All Gifts&amp;lt;/a&amp;gt;&amp;lt;br&amp;gt;
+    &amp;lt;a href=&quot;/exec/obidos/wishlist/ref=gr_pl1_/002-1145265-8016838&quot;&amp;gt;WishList&amp;lt;/a&amp;gt;&amp;lt;br&amp;gt;
+    ...
+    &amp;lt;a href=&quot;http://s1.amazon.com/exec/varzea/tg/armed-forces/-//ref=gr_af_/002-1145265-8016838&quot;&amp;gt;Salute Our Troops&amp;lt;/a&amp;gt;&amp;lt;br&amp;gt;
+    &amp;lt;a href=&quot;/exec/obidos/tg/browse/-/749188/ref=gr_p4_/002-1145265-8016838&quot;&amp;gt;Free Shipping&amp;lt;/a&amp;gt;&amp;lt;br&amp;gt;
+    &amp;lt;a href=&quot;/exec/obidos/tg/browse/-/468532/ref=gr_returns/002-1145265-8016838&quot;&amp;gt;Easy Returns&amp;lt;/a&amp;gt;
+    </code></pre>" style="border: 0px; display: block;font-family: Consolas, Inconsolata, Courier, monospace; font-weight: bold; white-space: pre; margin: 0px;border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; word-wrap: break-word; border: 1px solid rgb(204, 204, 204); padding: 0px 5px; margin: 0px 2px;font-size: 0.9em; font-family: Consolas, Inconsolata, Courier, monospace;">&lt;a href="/exec/obidos/tg/browse/-/229220/ref=gr_gifts/002-1145265-8016838"&gt;All Gifts&lt;/a&gt;&lt;br&gt;
+    &lt;a href="/exec/obidos/wishlist/ref=gr_pl1_/002-1145265-8016838"&gt;WishList&lt;/a&gt;&lt;br&gt;
+    ...
+    &lt;a href="http://s1.amazon.com/exec/varzea/tg/armed-forces/-//ref=gr_af_/002-1145265-8016838"&gt;Salute Our Troops&lt;/a&gt;&lt;br&gt;
+    &lt;a href="/exec/obidos/tg/browse/-/749188/ref=gr_p4_/002-1145265-8016838"&gt;Free Shipping&lt;/a&gt;&lt;br&gt;
+    &lt;a href="/exec/obidos/tg/browse/-/468532/ref=gr_returns/002-1145265-8016838"&gt;Easy Returns&lt;/a&gt;
+    </code></pre><blockquote style="margin: 1em 20px;border-left-width: 4px; border-left-style: solid; border-left-color: rgb(230, 230, 230); padding: 0px 15px; font-style: italic;">
+    <p style="margin: 1em 0px; word-wrap: break-word;margin-top: 0px;margin-bottom: 0px;">可以通过胖URL将Web服务器上若干个独立的HTTP事务捆绑成一个“会话”或“访问”。用户首次访问这个Web站点时，会生成一个唯一的ID，用服务器可以是被的方式将这个ID添加到URL中去，然后服务器就会将客户端重新导向这个胖URL。不论在什么时候，只要服务器接收到了对胖URL的请求，就可以去查找与那个用户ID相关的所有增量状态(购物车、简介等)，然后重写所有的输出超链，使其成为胖URL，以维护用户的ID。</p>
+    </blockquote><p style="margin: 1em 0px; word-wrap: break-word;">但这种技术存在几个很严重的问题：</p><ul>
+    <li style="display: list-item; line-height: 1.4em;">无法共享URL:胖URL中包含了与特定用户和绘画有关的状态信息。如果将这个URL发送给其他人，可能就在无意中将你鸡肋的个人信息都共享出去了。</li><li style="display: list-item; line-height: 1.4em;">破坏缓存：为每个URL生成用户特有的版本就意味着不再有可供公共访问的URL需要缓存了。</li><li style="display: list-item; line-height: 1.4em;">额外的服务器负荷：服务器需要重写HTML页面使URL变胖。</li><li style="display: list-item; line-height: 1.4em;">逃逸口：用户跳转到其他站点或者请求一个特定的URL时，就很容易在无意中“逃离”胖URL绘画。只有当用户严格地追随预先修改过的链接时，胖URL才能工作。如果用户逃离此链接，就会丢失它他的进展(可能是一个已经装满了东西的购物车)信息，得重新开始。</li><li style="display: list-item; line-height: 1.4em;">在会花间是非持久的：除非用户收藏了特定的胖URL，否则用户退出登录时，所有的信息都会丢失。</li><li style="display: list-item; line-height: 1.4em;">丑陋的URL:浏览器中显示的胖URL会给新用户带来困扰。</li></ul></div>
