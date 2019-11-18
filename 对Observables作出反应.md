@@ -1,0 +1,765 @@
+# 4.对observables做出响应
+[toc]
+## 4.1 (@)computed
+计算值(computed values)是可以根据现有的状态或其他计算值衍生出的值。概念上来说，它们与excel表格中的公式十分相似。不要低估计算值，因为它们有助于使实际可修改的状态尽可能的小。此外计算值还是高度优化过的，所以尽可能的多使用它们。
+不要把`computed`和`autorun`搞混。它们都是响应式调用的表达式，但是，如果你想响应式的产生一个可以被其他observer使用的值，请使用`@computed`，如果你不想产生一个新值，而想要达到一个效果，请使用`autorun`。举例来说，效果是像打印日志、发起网络请求等这样命令式的副作用。
+如果任何影响计算值的值发生变化了，计算值将根据抓国泰自动进行衍生。计算值在大多数情况下可以被MobX优化的，因为它们被仍为是纯函数。例如，如果前一个计算中使用的数据没有更改，计算属性将不会重新运行。如果某个其他计算属性或reaction未使用该计算属性，也不会重新运行。在这种情况下，它将被暂停。
+这个自动地暂停是非常方便的。如果一个计算值不再被观察了，例如使用它的UI不复存在了，MobX可以自动地将其垃圾回收。而`autorun`中的值必须要手动清理才行，这点和计算值是有所不同的。如果你创建一个计算属性，单不再reaction中的任何地方使用它，他不会缓存值兵器而有些重新计算看起来似乎是没有必要的。这点有时候会让刚接触MobX的人们很困惑。然而，在现实开发场景中，这是迄今为止最好的默认逻辑。如果你需要的话，可以使用[observe](https://cn.mobx.js.org/refguide/observe.html)或[keepAlive](https://github.com/mobxjs/mobx-utils#keepalive)来强制保持计算值总是处于唤醒状态。
+注意计算属性是不可枚举的，它们也不能在继承链中被覆盖。
+### @computed
+如果已经[启用decorators](https://cn.mobx.js.org/best/decorators.html)的话，可以在任意类属性的getter上使用`@computed`装饰器来声明式的创建计算属性。
+```js
+import {observable, computed} from "mobx";
+
+class OrderLine {
+    @observable price = 0;
+    @observable amount = 1;
+
+    constructor(price) {
+        this.price = price;
+    }
+
+    @computed get total() {
+        return this.price * this.amount;
+    }
+}
+```
+要不使用`decorate`来引入:
+```js
+import {decorate, observable, computed} from "mobx";
+
+class OrderLine {
+    price = 0;
+    amount = 1;
+    constructor(price) {
+        this.price = price;
+    }
+
+    get total() {
+        return this.price * this.amount;
+    }
+}
+decorate(OrderLine, {
+    price: observable,
+    amount: observable,
+    total: computed
+})
+```
+### 计算值的setter
+还可以为计算值定义setter。注意这些setters不能用来直接改变计算属性的值，但是它们可以用来作"逆向"衍生。例如:
+```js
+const orderLine = observable.object({
+    price: 0,
+    amount: 1,
+    get total() {
+        return this.price * this.amount
+    },
+    set total(total) {
+        this.price = total / this.amount // 从 total 中推导出 price
+    }
+})
+```
+同样的
+```js
+class Foo {
+    @observable length = 2;
+    @computed get squared() {
+        return this.length * this.length;
+    }
+    set squared(value) { // 这是一个自动的动作，不需要注解
+        this.length = Math.sqrt(value);
+    }
+}
+```
+> 注意：永远在getter之后定义setter，一些TypeScript版本会知道声明了两个具有相同名称的属性。
+
+### computed(expression)函数
+`computed`还可以直接当做函数来调用。就像`observable.box(primitive value)`创建一个独立的observable。在返回的对象上使用`.get()`来获取计算的当前值，或者使用`.observe(callback)`来观察值得改变。这种形式的`computed`不常使用，但在某些情况下，你需要传递一个"在box中"的计算值时，它可能是有用的。
+示例:
+```js
+import {observable, computed} from "mobx";
+var name = observable.box("John");
+
+var upperCaseName = computed(() =>
+    name.get().toUpperCase()
+);
+
+var disposer = upperCaseName.observe(change => console.log(change.newValue));
+
+name.set("Dave");
+// 输出: 'DAVE'
+```
+### computed 的选项
+当使用`computed`作为调节器或者盒子，它几首的第二个选项参数对象，选项参数对象有如下可选参数:
++ `name`:字符串，在spy和MobX开发者工具中使用的调试名称
++ `context`:在提供的表达式中使用的`this`。
++ `set`:要使用的setter函数。没有setter的话无法为计算值分配新值。如果传递给`computed`的第二个参数是一个函数，那么久会把这个函数作为setter。
++ `equals`:默认值是`comparer.default`。它充当比较浅一个值和后一个值得比较函数。如果这个函数认为前一个值和后一个值是相等的，那么观察者就不糊重新评估。这在使用结构数据和来自其他库的类型时很有用。例如，一个computed的[moment](https://momentjs.com/)实例可以使用`(a,b)=>a.isSame(b)`。如果项要使用结构比较来确定新的值是否与上个值不同(并作为结果通知观察者)，`comparer.deep`十分便利。
++ `requiresReaction`:对于非常昂贵的计算值，推荐设置成`true`。如果你尝试读取它的值，但某些观察者没有跟踪该值(在这种情况下，MobX不会缓存该值)，则会导致计算结果丢失，而不是进行昂贵的重新评估。
++ `keepAlive`:如果没有任何人观察到，则不要使用此计算值。请注意，这很容易导致内存泄露，因为它会导致此计算值使用的每个observable，并将计算值保存在内存中!
+
+### @computed.struct 用于比较结构
+`@computed`装饰器不需要接收参数。如果你想创建一个能进行结构比较的计算属性时，请使用`@computed.struct`。
+### 内置比较器
+MobX提供了三个内置`comparer`(比较器)，它们应该能满足绝大部分需求:
++ `comparer.identity`:使用恒等(`===`)运算符来判定两个值是否相同。
++ `comparer.default`:等同于`comparer.identity`,但还认为`NaN`等于`NaN`。
++ `comparer.structural`:执行深层结构比较以确定两个值是否相同。
+
+### 错误处理
+如果计算值在器计算期间抛出异常，则此异常将捕获并在读取其值时重新抛出。强烈建议始终抛出"错误"，以便保留原始堆栈跟踪。例如:`throw new Error("Uhoh")`,而不是`throw "Uhoh"`。抛出异常不会中断跟踪，所有计算值可以从异常中恢复。
+示例:
+```js
+const x = observable.box(3)
+const y = observable.box(1)
+const divided = computed(() => {
+    if (y.get() === 0)
+        throw new Error("Division by zero")
+    return x.get() / y.get()
+})
+
+divided.get() // 返回 3
+
+y.set(0) // OK
+divided.get() // 报错: Division by zero
+divided.get() // 报错: Division by zero
+
+y.set(2)
+divided.get() // 已恢复; 返回 1.5
+```
+## 4.2 Autorun
+当你想创建一个响应式函数，而该函数本身永远不会有观察者时，可以使用`mobx.autorun`。这通常是当你需要从反应式代码桥段到命令式代码的情况，例如打印日志、持久化或者更新UI的代码。当使用`autorun`时，所提供的函数总是立即被处罚依次，然后每次它的依赖关系改变时会再次被触发。相比之下，`computed(function)`创建的函数只有当它有自己的观察者时才会重新计算，否则它的值会被认为是不相关的。
+经验法则：如果你有一个函数应该自动执行，但不会产生一个新的值，请使用`autorun`.其余情况都应该使用`computed`。Autoruns是关于*启动效果(initiating effects)*的，而不是产生新的值。如果字符串作为第一个参数传递给`autorun`,它将被用作调试名。
+传递给autorun的函数在调用后将接收一个参数，即当前`reaction(autorun)`,可用于在执行期间清理autorun。
+就像[@observer装饰器/函数](https://cn.mobx.js.org/refguide/%20observer-component.md)，`autorun`只会观察在执行提供的函数时所使用的函数。
+```js
+var numbers = observable([1,2,3]);
+var sum = computed(() => numbers.reduce((a, b) => a + b, 0));
+
+var disposer = autorun(() => console.log(sum.get()));
+// 输出 '6'
+numbers.push(4);
+// 输出 '10'
+
+disposer();
+numbers.push(5);
+// 不会再输出任何值。`sum` 不会再重新计算。
+```
+### 选项
+Autorun接收第二个参数，它是一个参数对象，有如下可选的参数:
++ `delay`: 可用于对效果函数进行曲抖动的数字(以毫秒未单位)，如果是0(默认值)的话，那么不会进行去抖。
++ `name`: 字符串，用于在例如像`spy`这样时间中用作此reaction的名称。
++ `onError`:用来处理reaction的错误，而不是传播它们。
++ `scheduler`:设置自定义调度器以决定如何调度autorun函数的重新进行。
+
+#### `delay`选项
+```js
+autorun(() => {
+    // 假设 profile.asJson 返回的是 observable Json 表示，
+    // 每次变化时将其发送给服务器，但发送前至少要等300毫秒。
+    // 当发送后，profile.asJson 的最新值会被使用。
+    sendProfileToServer(profile.asJson);
+}, { delay: 300 });
+```
+#### `onError`选项
+在autorun和所有其他类型reaction中抛出的异常会被捕获并打印到控制台，但不会讲异常传播回原始导致异常的代码。这是为了确保一个异常中的reaction不会阻止其他可能不相关的reaction的预定执行。这也允许reation从异常中回复:抛出异常不会破坏MobX的跟踪，因此如果除去异常的原因，reaction的后续运行可能会在此正常完成。
+可以通过提供`onError`选项来覆盖Reactions的默认日志行为。示例:
+```js
+const age = observable.box(10)
+
+const dispose = autorun(() => {
+    if (age.get() < 0)
+        throw new Error("Age should not be negative")
+    console.log("Age", age.get())
+}, {
+    onError(e) {
+        window.alert("Please enter a valid age")
+    }
+})
+```
+一个全局的onError处理方法可以使用`onReactionError(handler)`来设置。这在测试或监控中很有用。
+## 4.3 when
+`when(predicate:()=>boolean, effect?: () => void, options?)`
+`when`观察并运行给定的`predicate`,直接返回true。一旦返回true，给定的`effect`就会被执行，然后autorunner(自动运行程序)会被清理。该函数返回一个清理器就以提前取消自动运行程序。
+对于以响应式方式来进行处理或者取消，此函数非常有用。示例:
+```js
+class MyResource {
+    constructor() {
+        when(
+            // 一旦...
+            () => !this.isVisible,
+            // ... 然后
+            () => this.dispose()
+        );
+    }
+
+    @computed get isVisible() {
+        // 标识此项是否可见
+    }
+
+    dispose() {
+        // 清理
+    }
+}
+```
+### when-promise
+如果没提供`effect`函数，`when`会返回一个`Promise`。它与`async/await`可以完美结合。
+```js
+async function() {
+    await when(() => that.isVisible)
+    // 等等..
+}
+```
+## 4.4 Reaction
+用法: `reaction(() => data, (data, reaction) => { sideEffect }, options? )`。
+`autorun`的变种，对于如何追踪observable赋予了更细粒度的控制。它接收两个函数参数，第一个(数据函数)是用来跟踪并返回数据作为第二个函数(效果 函数)的输入。不同域`autorun`的是当创建时*效果*函数不会直接执行，只有在数据表达式首次返回一个新值才会运行。在执行*效果*函数时访问的任何observable都不会被追踪。
+`reaction`返回一个清理函数。
+传入`reaction`的第二个函数(副作用函数)当调用时会接收两个参数。第一个参数是由data函数返回的值。第二个参数是当前的reaction，可以用来在执行期间清理`reaction`。
+值得注意的hi*效果*函数**仅**对数据函数中**访问**的数据做出反应，这可嗯呢该会比实际在效果函数使用的数据要少。此外，*效果*函数只会在表达式返回的数据发生更改时触发。换句话说，`reaction`需要你生产*效果*函数中所需要的东西。
+### 选项
+Reaction接收第三个参数，它是一个参数对象，有如下可选的参数:
++ `fireImmediately`:布尔值，用来标识效果函数是否在数据函数第一次运行后立即触发。默认值是`false`。
++ `delay`:可用于对效果函数进行曲抖动的数字(以毫秒未单位)。如果是0(默认值)的话，那么不会进行去抖。
++ `equals`:默认值是`comparer.default`。如果指定的话，这个比较器函数被用来比较由*数据*函数产生的前一个值和后一个值。只有比较器函数返回false*效果*函数才会被调用。此选项如果指定的话，会覆盖`compareStructural`选项。
++ `name`:字符串，用于在例如像`spy`那样时间中用作此reaction的名称。
++ `onError`:用来处理reaction的错误，而不是传播它们。
++ `scheduler`:设置自定义调度器以决定如何调度autorun函数的重新运行。
+
+### 示例
+在下面的示例中，`reaction1`, `reaction2`和`autorun1`都会对`todos`数组中的todo的增加、删除或替换做出反应。但只有`reaction2`和`autorun`会对某个todo的`title`变化作出反应，应为在`reaction2`的数据表达式中使用了`title`,而`reaction1`的数据表达式没有使用。`autorun`追踪完整的副作用，因此它将始终正确触发，但也更容易意外地访问相关数据。还可参见[MobX会对什么作出反应?](https://cn.mobx.js.org/best/react)。
+```js
+const todos = observable([
+    {
+        title: "Make coffee",
+        done: true,
+    },
+    {
+        title: "Find biscuit",
+        done: false
+    }
+]);
+
+// reaction 的错误用法: 对 length 的变化作出反应, 而不是 title 的变化!
+const reaction1 = reaction(
+    () => todos.length,
+    length => console.log("reaction 1:", todos.map(todo => todo.title).join(", "))
+);
+
+// reaction 的正确用法: 对 length 和 title 的变化作出反应
+const reaction2 = reaction(
+    () => todos.map(todo => todo.title),
+    titles => console.log("reaction 2:", titles.join(", "))
+);
+
+// autorun 对它函数中使用的任何东西作出反应
+const autorun1 = autorun(
+    () => console.log("autorun 1:", todos.map(todo => todo.title).join(", "))
+);
+
+todos.push({ title: "explain reactions", done: false });
+// 输出:
+// reaction 1: Make coffee, find biscuit, explain reactions
+// reaction 2: Make coffee, find biscuit, explain reactions
+// autorun 1: Make coffee, find biscuit, explain reactions
+
+todos[0].title = "Make tea"
+// 输出:
+// reaction 2: Make tea, find biscuit, explain reactions
+// autorun 1: Make tea, find biscuit, explain reactions
+```
+在下面的示例中,`reaction3`会对`counter`中的count作出反应。当调用`reaction`时，第二个参数会作为清理函数使用。下面的示例展示了`reaction`只会调用一次。
+```js
+const counter = observable({ count: 0 });
+
+// 只调用一次并清理掉 reaction : 对 observable 值作出反应。
+const reaction3 = reaction(
+    () => counter.count,
+    (count, reaction) => {
+        console.log("reaction 3: invoked. counter.count = " + count);
+        reaction.dispose();
+    }
+);
+
+counter.count = 1;
+// 输出:
+// reaction 3: invoked. counter.count = 1
+
+counter.count = 2;
+// 输出:
+// (There are no logging, because of reaction disposed. But, counter continue reaction)
+
+console.log(counter.count);
+// 输出:
+// 2
+```
+粗略地讲，reaction是`computed(expression).observe(action(sideEffect))`或`autorun(()=>action(sideEffect)(expression))`的语法糖。
+## 4.5 (@)observer
+`observer`函数/装饰器可以用来将React组件变成响应式组件。它用`mobx.autorun`包装了组价的render函数以确保任何组件渲染中使用的数据变化时都可以强制刷新组件。`observer`是由单独的`mobx-react`包提供的。
+```js
+import {observer} from "mobx-react";
+
+var timerData = observable({
+    secondsPassed: 0
+});
+
+setInterval(() => {
+    timerData.secondsPassed++;
+}, 1000);
+
+@observer class Timer extends React.Component {
+    render() {
+        return (<span>Seconds passed: { this.props.timerData.secondsPassed } </span> )
+    }
+};
+
+ReactDOM.render(<Timer timerData={timerData} />, document.body);
+```
+> 小贴士: 当`observer`需要组合其他装饰器或高阶组件时，请确保`observer`是最深处(第一个应用)的装饰器，否则它可能什么都不做。
+> 注意,使用`@observer`装饰器是可选的，它和`observer(class Timer ...{ })`达到的效果是一样的。
+
+### 陷阱:组件中的简介引用值
+MobX可以做很多事，但是他无法使原始数据类型之转变成可观察的(尽管它可以用对象来包装他们，参见[boxed observables](https://cn.mobx.js.org/refguide/boxed.html)。所以**值**是不可观察的，但是对象的**属性**可以。这意味着`@observer`实际上是对间接引用(dereference)值得反应。那么在上面的示例中，如果是用下面这种方式初始化的，`Timer`组件是**不会**有反应的:
+```js
+React.render(<Timer timerData={timerData.secondsPassed} />, document.body)
+```
+这个代码片段中只是把`secondPassed`的当前值传递给了`Timer`组件，这个值是不可变值0(JS中所有的原始类型之都是不可变的)。这个数值永远都不会改变，所以我们需要在组件中访问它。或者换句话说:值需要**通过引用**来传递而不是通过(字面量)值来传递。
+### ES5支持
+在ES5环境中，可以简单地使用`observer(React.createClass({...`来定义观察者组件。还可以参见[语法指南](https://cn.mobx.js.org/best/syntax.md)。
+### 无状态函数组件
+上面的`Timer`组件还可以通过使用`observer`传递的无状态函数组件来编写。
+```js
+import { observer } from 'mobx-react';
+
+const Timer = observer(({timerData})) =>
+	<span>Seconds passed: { timerData.secondPassed }</span>
+    );
+```
+### 可观察的局部组件状态
+就像普通类一样，你可以通过使用`@observable`装饰器在React组件上引入可观察属性。这意味着你可以在组件中拥有功能同样强大的本地状态(local state),而不需要通过React的冗长和强制性的`setState`机制来管理。响应式状态会被`render`提取调用，但不会调用其他React的生命周期方法，除了`componentWillUpdate`和`componentDidUpdate`。如果你需要用到其他React生命周期方法，只需要用基于`state`的常规API即可。
+上面的例子还可以这样写:
+```js
+import {observer} from "mobx-react"
+import {observable} from "mobx"
+
+@observer class Timer extends React.Component {
+    @observable secondsPassed = 0
+
+    componentWillMount() {
+        setInterval(() => {
+            this.secondsPassed++
+        }, 1000)
+    }
+
+    render() {
+        return (<span>Seconds passed: { this.secondsPassed } </span> )
+    }
+}
+
+ReactDOM.render(<Timer />, document.body)
+```
+对于使用可观察的局部组件状态更多的优势，请参见[为什么我不再使用`setState`的三个理由](https://medium.com/@mweststrate/3-reasons-why-i-stopped-using-react-setstate-ab73fc67a42e)。
+### 使用`inject`将组件连接到提供的stores
+`mobx-react`包提供了`Provider`组件，它使用了React的上下文(context)机制，可以用来向下传递`stores`。要连接到这些stores，需要传递一个stores名称的列表给`inject`,这使得stores可以作为组件的`props`使用。
+> 注意: 从mobx-react 4开始，注入stores的语法发生了变化，应该一直使用`inject(stores)(component)`或`@inject(stores) class Component...`。直接传递给store名称给`observer`的方式已废弃。
+
+示例:
+```js
+const colors = observable({
+   foreground: '#000',
+   background: '#fff'
+});
+
+const App = () =>
+  <Provider colors={colors}>
+     <app stuff... />
+  </Provider>;
+
+const Button = inject("colors")(observer(({ colors, label, onClick }) =>
+  <button style={{
+      color: colors.foreground,
+      backgroundColor: colors.background
+    }}
+    onClick={onClick}
+  >{label}</button>
+));
+
+// 稍后..
+colors.foreground = 'blue';
+// 所有button都会更新
+```
+更多资料，请参见[`mobx-react`文档](https://github.com/mobxjs/mobx-react#provider-and-inject)。
+### 何时使用`observer`?
+简单来说: 所有渲染observable数据的组件。如果你不想讲组件标记为observer，例如为了减少通过组件包的依赖，请确保只传递普通数据。
+使用`@observer`的话，不再需要从渲染目的上来区分是"智能组件"还是"无脑"组件。在组件的事件处理、发起请求等方面，它也是一个很好地分离关注点。当所有组件它们**自己**的依赖项有变化时，组件自己会响应更新。而它的计算开销是可以忽略的，并且他会确保不管何时，只要当你开始使用observable数据时，组件都将会响应它的变化。更多详情，请参见[这里](https://www.reddit.com/r/reactjs/comments/4vnxg5/free_eggheadio_course_learn_mobx_react_in_30/d61oh0l)。
+### `observer`和`PureComponent`
+如果传递给组件的数据是响应式的，`observer`还可以防止当组件的props只是浅改变时的重新渲染，这是很有意义的。这个行为与[React PureCompnent](https://reactjs.org/docs/react-api.html#reactpurecomponent)相似，不同于在这里的state的更改仍然会被处理。如果一个组件提供了它自己的`shouldComponentUpdate`,这个方法会被优先调用。想要更详细的解释，请参见这个[github issue](https://github.com/mobxjs/mobx/issues/101)。
+### `componentWillReact`(生命周期钩子)
+React组件通常在新的堆栈上渲染，这使得通常很难弄清楚什么**导致**组件的重新渲染。当使用`mobx-react`时可以定义一个新的生命周期钩子函数`componentWillReact(一语双关)`。当组件因为它观察的数据发生了改变，它会安排重新渲染，这个时候`componentWillReact`会被处罚。这使得他很容易追溯渲染并找到导致渲染的操作(action)。
+```js
+import {observer} from "mobx-react";
+
+@observer class TodoView extends React.Component {
+    componentWillReact() {
+        console.log("I will re-render, since the todo has changed!");
+    }
+
+    render() {
+        return <div>this.props.todo.title</div>;
+    }
+}
+```
++ `componentWillReact`不接收参数
++ `componentWillReact`初始化渲染浅不会触发(使用`componentWillMount`替代)
++ `componentWillReact`对于mobx-react@4+,当接收新的props时并在`setState`调用后会触发此钩子。
+
+### 优化组件
+请参见相关[章节](https://cn.mobx.js.org/best/react-performance.html)。
+### MobX-React-DevTools
+组合`@observer`,可以使用MobX-React-DevTools,它精确地显示了何时重新渲染组件，并且可以检查组件的数据依赖关系。详情请参见[开发者工具](https://cn.mobx.js.org/best/devtools.html)。
+### observer组件特性
++ Observer仅订阅在上次渲染期间活跃使用的数据解构。这意味着你不会订阅不足(under-subscribe)或者过度订阅(over-subscribe)。你甚至可以在渲染方法中使用仅在未来时间段可用的数据。这是异步加载数据的理想选择。
++ 你不需要声明组件将使用什么数据。相反，依赖关系在运行时会确定并以非常细粒度的方式进行追踪。
++ 通常，响应式组件没有或很少有状态，因为在于其他组件共享的对象中封装(视图)状态通常更方便。单你仍然可以自由的使用状态。
++ `@observer`以和`PureComponent`同样的方式实现了`shouldComponentUpdate`,因此子组件可以避免不必要的渲染。
++ 响应式组件单方面加载数据，即使子组件要重新渲染，父组件也不会进行不必要地重新渲染。
++ `@observer`不依赖于React的上下文系统。
++ mobx-react@4+ 中，observer组件的props对象和state对象都会自动地转变为observable，这使得创建@computed属性更容易，@computed属性是根据组件内部的props推导得到的。如果在`@observer`组件中包含reaction(例如`autorun`)的话，当reaction使用的特定属性不再改变时，reaction时不会再重新运行的，再reaction中使用的特定props一定要间接引用(例如 `const myProp = props.myProp`)。不然，如果你在reaction中引用了`props.myProp`,那么props的**任何**改变都会导致`reaction`的重新运行。对于React-router的典型用例，请参见[这篇文章](https://alexhisen.gitbooks.io/mobx-recipes/content/observable-based-routing.html)。
+
+### 在编辑器中启用装饰器
+在使用TypeScript或Babel这些等待ES标准定义的编译器时，默认情况下是不支持装饰器的。
++ 对于TypeScript，启用`--experimentalDecorators`编译器表示或者在`tsconfig.json`中吧编译器属性`experimentalDecorators`设置为`true`（推荐做法)
++ 对于babel5, 确保把`--stage` 0 传递给`Babel GLI`。
++ 对于babel6,参见次[issue](https://github.com/mobxjs/mobx/issues/105)中建议的示例配置。
+
+## 4.6 理解MobX如何做出响应
+MobX通常会对你期望的东西做出反应。这意味着在90%的场景下，mobx"都可以工作"。然而，在某些时候，你会遇到一个情况，它可能不会像你所期望的那样工作。在这个时候理解MobX如何确定对什么有反应就显得尤为重要。
+> MobX会对在**追踪函数**执行**过程**中**读取**现存的可观察属性做出反应。
+
++ "**读取**"是对象属性的间接引用，可以通过`.`(例如`user.name`)或者`[]`(例如`user['name']`)的形式完成。
++ "**追踪函数**"是`computed`表达式、observer组件的`render()`方法和`when`、`reaction`和`autorun`的第一个入参函数。
++ "**过程(during)**"意味着只朱总哪些在函数执行时被读取的observable。这些值是否由追踪函数直接或间接使用并不重要。
+
+换句话说，MobX不会对其作出反应:
++ 从observable获取的值，但是在追踪函数之外
++ 在异步调用的代码块中读取的observable
+
+### MobX追踪属性访问，而不是值
+用一个实例来阐述上述规则，假设你有如下的observable数据解构(默认情况下`observable`会递归应用，所以本示例中的所有字段都是可观察的)。
+```js
+let message = observable({
+    title: "Foo",
+    author: {
+        name: "Michel"
+    },
+    likes: [
+        "John", "Sara"
+    ]
+})
+```
+在内存中看来像下面这样。绿色框表示**可观察**属性。请注意，**值**本身是不可观察的！
+![MobX观察引用](https://cn.mobx.js.org/images/observed-refs.png)
+
+现在MobX基本上所做的是记录你再函数中使用的是哪个**箭头**。之后，只要这些箭头中的其中一个改变了(它们开始引用别的东西了)，它就会重新运行。
+### 示例
+来看下下面这些示例(机遇上面定义的`message`变量):
+#### 正确的:在追踪函数内进行间接引用
+```js
+autorun(()=>{
+	console.log(message.title);
+});
+message.title = "Bar"
+```
+这将入预期一样会做出反应，`.title`属性会被autorun间接引用并且在之后发生了改变，所以这个改变时能检测到的。
+你可以通过在追踪函数内调用[trace()](https://cn.mobx.js.org/reguide/trace)方法来验证MobX在追踪什么。以上面的函数为例，输出结果如下:
+```js
+const disposer = autorun(()=>{
+	console.log(message.title)
+    trace()
+})
+
+// 输出:
+// [mobx.trace] 'Autorun@2' tracing enabled
+
+message.title = "Hello"
+// [mobx.trace] 'Autorun@2' is invalidated due to a change in: 'ObservableObject@1.title'
+```
+还可以通过使用指定工具来获取内部的依赖(或观察者):
+```js
+getDependencyTree(disposer) // 输出与 disposer 耦合的 reaction 的依赖树
+// { name: 'Autorun@4',
+//  dependencies: [ { name: 'ObservableObject@1.title' } ] }
+```
+#### 错误的：改变了非obsercable的引用
+```js
+auto(() => {
+	console.log(message.title)
+})
+message = observable({title:"Bar"})
+```
+这将**不会**作出反应。`message`被改变了,但它不是observable，它只是一个**引用**observable的变量,但是变量(引用)本身并不是可观察的。
+#### 错误的:在追踪函数外进行间接引用
+```js
+var title = message.title;
+autorun(() => {
+	console.loh(title);
+})
+message.title = "Bar"
+```
+这将**不会**作出反应。`message.title`是在`autorun`外面进行的间接引用，在间接引用的时候`title`变量只是包含`message.title`的值(字符串`Foo`)而已。`title`变量不是observable，所以`autorun`永远不会作出反应。
+#### 正确的：在追踪函数内进行间接引用
+```js
+autorun(() => {
+    console.log(message.author.name)
+})
+message.author.name = "Sara";
+message.author = { name: "John" };
+```
+对于这两个变化都讲作出反应。`author`和`author.name`都是通过`.`访问的，使得MobX可以追踪这些引用。
+#### 错误的: 存储observable对象的本地引用而不对其追踪
+```js
+const author = message.author;
+autorun(() => {
+	console.log(author.name);
+})
+message.author.name = "Sara";
+message.author = { name: "John" };
+```
+对于第一个改变将会作出反应，`message.author`和`author`是同一个对象，而`name`属性在autorun中进行的间接引用。但对于第二个改变将**不会**作出反应，`message.author`的关系没有通过`autorun`追踪。Autorun仍然使用的是"老的"`author`。
+#### 常见陷阱: console.log
+```js
+const message = observable({ title: "hello" })
+
+autorun(() => {
+    console.log(message)
+})
+
+// 不会触发重新运行
+message.title = "Hello world"
+```
+在上面的示例中，更新`message`的`title`属性不会被打印出来，因为没有在`autorun`内使用。
+`autorun`只依赖于`message`,它不是observable，而是常量。换句话说，对于MobX而言，它没有使用`title`，因此与`autorun`无关。
+事实上`console.log`hi打印出`message`的`title`,这是让人费解的，`console.log`是异步API，它只会稍后对参数进行格式化，因此`autorun`不会追踪`console.log`访问的数据。所以，请确保始终传递不便数据(immutable data)或防御副本给`console.log`。
+下面是一些解决方案，它们会对`message.title`作出反应:
+```js
+autorun(() => {
+    console.log(message.title) // 很显然， 使用了 `.title` observable
+})
+
+autorun(() => {
+    console.log(mobx.toJS(message)) // toJS 创建了深克隆，从而读取消息
+})
+
+autorun(() => {
+    console.log({...message}) // 创建了浅克隆，在此过程中也使用了 `.title`
+})
+
+autorun(() => {
+    console.log(JSON.stringify(message)) // 读取整个结构
+})
+```
+#### 正确的: 在追踪函数内访问数组属性
+```js
+autorun(()=>{
+	console.log(message.likes.length);
+})
+message.likes.push("Jennifer")；
+```
+使用上面的示例数据是会作出反应的，数组的索引技术作为属性访问，但前提条件**必须**是提供的索引小于数组前度。MobX不会追踪还不存在的索引或者对象属性(当使用observable映射(map)时除外)。所以建议总是使用`.length`来检查保护机遇数组索引的访问。
+#### 正确的:在追踪函数内访问数组方法
+```js
+autorun(() => {
+	console.log(message.likes.join(","));
+})
+message.likes.push("Jennifer");
+```
+这将如逾期一样会作出反应。所有不会改变数组的数组方法都会自动地追踪。
+```js
+autorun(() => {
+	console.log(message.likes.join(", "));
+})
+message.likes[2]="Jennifer";
+```
+这将如逾期一样会作出反应。所有数组的索引分配都可以检测到，但前提条件**必须**提供的索引小于数组长度。
+#### 错误的: "使用"observable但没有访问它的任何属性
+```js
+autorun(()=>{
+	message.likes;
+})
+message.likes.push("Jennifer");
+```
+这将**不会**作出反应、只是因为`likes`数组本身并没有被`autorun`使用，只是引用了数组。所以相比之下，`message.likes=["Jennifer"]`是会作出反应的，表达式没有修改数组，而是修改了`likes`属性本身。
+### 使用对象的非observable属性
+```js
+autorun(()=>{
+	console.log(message.postDate)
+})
+message.postDate = new Date()
+```
+#### MobX 4
+这将**不会**作出反应。MobX只能追踪observable属性，上面的`postDate`还未被定义为observable属性。但是，仍然可以使用MobX提供的`get`和`set`方法来使其工作:
+```js
+autorun(()=>{
+	console.log(get(message, "postDate"))
+})
+set(message, "postDate", new Date())
+```
+#### MobX 5
+在MobX 5中是**会**作出反应的，因为MobX 5可以追踪还不存在的属性，注意，这只适用于由`observable`或`observable.object`创建的对象。对于类实例上的新属性，还是无法自动将其变成observable的。
+#### [MobX 4及以下版本]错误的:使用observable对象还不存在的属性
+```js
+autorun(() => {
+    console.log(message.postDate)
+})
+extendObservable(message, {
+    postDate: new Date()
+})
+```
+这将**不会**作出反应。MobX不会对当追踪开始时还不能存在的observable属性作出反应。如果两个表达式交换下顺序，或者任何其他的observable引起`autorun`再次运行的话，`autorun`也会开始追踪`postDate`属性了。
+#### 正确的:使用映射中还不存在的项
+```js
+const twitterUrls = observable.map({
+    "John": "twitter.com/johnny"
+})
+
+autorun(() => {
+    console.log(twitterUrls.get("Sara"))
+})
+twitterUrls.set("Sara", "twitter.com/horsejs")
+```
+这将**会**作出反应。Observable映射支持观察还不存在的项。这一这里最初会输入`undefined`。可以通过使用`twitterUrls.has("Sara")`来先检查该项是否存在。所以对于动态建几何，总是使用observable映射。
+#### 正确的:使用MobX工具来读/写对象
+MobX 4之后还可以将observable对象当做动态集合使用，如果使用MobX API来进行读/更新操作，那么MobX可以追踪属性的变化。下面的代码同样可以进行反应:
+```js
+import { get, set, observable } from "mobx"
+
+const twitterUrls = observable.object({
+    "John": "twitter.com/johnny"
+})
+
+autorun(() => {
+    console.log(get(twitterUrls, "Sara")) // get 可以追踪还未创建的属性
+})
+set(twitterUrls, { "Sara" : "twitter.com/horsejs"})
+```
+想了解更多，请参见[对象操作 API](https://mobx.js.org/refguide/api.html#direct-observable-manipulation)。
+### MobX只追踪同步地访问数据
+```js
+function upperCaseAuthorName(author) {
+    const baseName = author.name;
+    return baseName.toUpperCase();
+}
+autorun(() => {
+    console.log(upperCaseAuthorName(message.author))
+})
+message.author.name = "Chesterton"
+```
+这将**会**作出反应。尽管`author.name`不是在`autorun`本身的代码块中进行直接饮用的。MobX会跟踪发生在`upperCaseAuthorName`函数里面的间接引用，因为它是在autorun执行期间发生的。
+```js
+autorun(() => {
+    setTimeout(
+        () => console.log(message.likes.join(", ")),
+        10
+    )
+})
+message.likes.push("Jennifer");
+```
+这将**不会**作出反应。在`autorun`执行期间没有访问到任何`observable`，而只是在`setTimeour`执行期间访问了。通常来说，这是相当明显的，很少会导致问题。
+### MobX只会为数据是直接通过`render`存取的`observer`组件进行数据追踪
+一个使用`observer`的常见错误是它不会追踪语法上看起来像`observer`父组件的数据，但实际上是由不同的组件渲染的。当组件的render回调函数在第一类中传递给另一个组件时，经常会发生这种情况。
+看下面这个人造的示例:
+```js
+const MyComponent = observer(({ message }) =>
+    <SomeContainer
+        title = {() => <div>{message.title}</div>}
+    />
+)
+
+message.title = "Bar"
+```
+起初看上去一切似乎都是没有问题的，除了`<div>`实际上不是由`MyComponent(有追踪的渲染)`渲染的，而是`SomeContainer`。所以要确保`SomeContainer`的title可以正确对新的`message.title`作出反应，`SomeContainer`应该也是一个`observer`。
+如果`SomeContainer`来源于外部库的话，这通常不在你的掌控之中。在这种场景下，你可以用自己的无状态`observer`组件来包裹`div`解决此问题，或通过利用`<Observer>`组件。
+```js
+const MyComponent = observer(({ message }) =>
+    <SomeContainer
+        title = {() => <TitleRenderer message={message} />}
+    />
+)
+
+const TitleRenderer = observer(({ message }) =>
+    <div>{message.title}</div>}
+)
+
+message.title = "Bar"
+```
+另外一种方法可以避免创建额外组件，它同样适用mobx-react内置的`Observer`组件，它不接收参数，只需要单个的render函数作为子节点:
+```js
+const MyComponent = ({ message }) =>
+    <SomeContainer
+        title = {() =>
+            <Observer>
+                {() => <div>{message.title}</div>}
+            </Observer>
+        }
+    />
+
+message.title = "Bar
+```
+### 避免在本地低端中缓存 observable
+一个常见的错误就是把间接引用的observable存储到本地变量，然后仍为组件会作出反应。举例来说:
+```js
+@observer class MyComponent extends React.component {
+    author;
+    constructor(props) {
+        super(props)
+        this.author = props.message.author;
+    }
+
+    render() {
+        return <div>{this.author.name}</div>
+    }
+}
+```
+组件会对`author.name`的变化作出反应，单不会对`message`本身的`.author`的变化作出反应。因为这个间接引用发生在`render()`之外，而`render()`是`observer`组件的唯一追踪函数。注意，即便把组件的`author`字段标记为`@observable`字段也不能解决这个问题，`author`人个案是只分配依次。这个问题可以简单地解决，方法是在`render()`中进行间接引用或者在组件示例上引入一个计算属性:
+```js
+@observer class MyComponent extends React.component {
+    @computed get author() {
+        return this.props.message.author
+    }
+// ...
+```
+### 多个组件将如何渲染
+假设下面的组件是用来渲染上面的`message`对象的。
+```js
+const Message = observer(({ message }) =>
+    <div>
+        {message.title}
+        <Author author={ message.author } />
+        <Likes likes={ message.likes } />
+    </div>
+)
+
+const Author = observer(({ author }) =>
+    <span>{author.name}</span>
+)
+
+const Likes = observer(({ likes }) =>
+    <ul>
+        {likes.map(like =>
+            <li>{like}</li>
+        )}
+    </ul>
+)
+```
+| 变化 | 重新渲染组件 |
+|--------|--------|
+| `message.title="Bar"`       |  Message     |
+| `message.author.name="Susan"`       |  Author(.author在Message中进行间接引用，但是没有改变)      |
+| `message.author={name:"Susan"}`       | `Message`, `Author`       |
+|  `message.likes[0]="Michel" `     |  Likes      |
+
+> 注意：
+> 1. 如果`Author`组件是像这样调用的:`<Author author={message.author.name} />`。`Message`会是进行间接引用的组件并对`message.author.name`的改变作出反应。尽管如此，`<Author>`同样会重新渲染，因为他接收到一个新的值。所以从性能上考虑，越晚进行间接引用越好。
+> 2. 如果likes数组里面的是对象而不是字符串，并且他们在它们自己的`Like`组件中渲染，那么对于发生在某个具体的like中发生的变化，`Likes`组件将不会重新渲染。
+
+### TL;DR
+> MobX会对在执行跟踪函数期间读取的任何**现有的可观察属性**作出反应。
